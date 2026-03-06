@@ -1,0 +1,43 @@
+# ECR repository
+$ecrRepo = "500330120032.dkr.ecr.eu-north-1.amazonaws.com/microservices-project"
+
+# قائمة الصور مع tag الموجود فعليًا على جهازك
+$images = @(
+    "adservice:v0.10.0",
+    "cartservice:v0.10.0",
+    "checkoutservice:v0.10.0",
+    "currencyservice:v0.10.0",
+    "frontend:v0.10.0",
+    "paymentservice:v0.10.0",
+    "productcatalogservice:v0.10.0",
+    "shippingservice:v0.10.0",
+    "recommendationservice:v0.8.0",
+    "emailservice:v0.7.0"
+)
+
+foreach ($img in $images) {
+    $localImage = "gcr.io/google-samples/microservices-demo/$img"
+    
+    # استخراج الاسم وtag من المتغير $img
+    $parts = $img.Split(":")
+    $name = $parts[0]
+    $tag = $parts[1]
+
+    # استخدام ${} لتجنب خطأ PowerShell مع :
+    $targetImage = "${ecrRepo}:${name}-${tag}"
+
+    # تحقق من وجود الصورة محليًا
+    $exists = docker images --format "{{.Repository}}:{{.Tag}}" | Where-Object { $_ -eq $localImage }
+
+    if ($exists) {
+        Write-Host "`n[+] Tagging $localImage as $targetImage"
+        docker tag $localImage $targetImage
+
+        Write-Host "[+] Pushing $targetImage ..."
+        docker push $targetImage
+    } else {
+        Write-Host "`n[-] Image not found locally: $localImage"
+    }
+}
+
+Write-Host "`nAll done!"

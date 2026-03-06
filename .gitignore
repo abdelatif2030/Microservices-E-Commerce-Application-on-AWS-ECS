@@ -1,0 +1,6 @@
+terraform.tfstate.backup
+terraform.tfstate
+cridentials
+.terraform.lock.hcl
+.terraform
+Amazon Elastic Container Service.tf-old-one
